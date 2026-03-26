@@ -29,7 +29,6 @@ Chạy lệnh sau trong Terminal/CMD:
 ```bash
 npm install -g @google/gemini-cli
 npm install -g @googleworkspace/cli
-
 ```
 
 ## ☁️ PHẦN 2: KHAI BÁO VỚI "VŨ TRỤ" GOOGLE (Setup & Auth)
@@ -41,7 +40,6 @@ npm install -g @googleworkspace/cli
 3. Copy đoạn mã đó. Mở Terminal gõ lệnh:
 ```bash
 gemini auth --key "DÁN_API_KEY_CỦA_BẠN_VÀO_ĐÂY"
-
 ```
 
 
@@ -54,7 +52,6 @@ gemini auth --key "DÁN_API_KEY_CỦA_BẠN_VÀO_ĐÂY"
 1. Trước tiên, đảm bảo bạn đã đăng nhập Google Cloud CLI:
 ```bash
 gcloud auth login
-
 ```
 
 
@@ -62,7 +59,6 @@ gcloud auth login
 2. Chạy trình thiết lập tự động của gws:
 ```bash
 gws auth setup
-
 ```
 
 
@@ -89,7 +85,6 @@ Sau khi đã nạp email vào Test users, bước cuối cùng là cho phép cô
 
 ```bash
 gws auth login
-
 ```
 
 Trình duyệt sẽ tự động mở ra. Bạn thực hiện đúng các bước sau:
@@ -105,7 +100,6 @@ Hãy gõ thử lệnh sau vào Terminal để xem chúng ta đã liên kết th�
 
 ```bash
 gws drive files list --params '{"pageSize": 1}'
-
 ```
 
 *(Nếu Terminal trả về một đoạn JSON chứa danh sách các file trong Drive của bạn như "Bảng tính không có tiêu đề", "Tài liệu không có tiêu đề"... thì hệ thống đã sẵn sàng 100%!).*
@@ -124,7 +118,6 @@ gws drive files list --params '{"pageSize": 1}'
 
 ```bash
 gws drive files list --params '{"pageSize": 20}' --format json | gemini "Đây là danh sách file trên Google Drive của tôi định dạng JSON. Hãy phân tích và trả về cho tôi một bảng Markdown gồm: Tên file, Kích thước, và Gợi ý của bạn (Nên giữ hay Xóa đi dựa vào tên file xem nó có vẻ quan trọng hay là rác)."
-
 ```
 
 👉 *Kết quả:* Gemini sẽ "ngửi" tên file (như `untitled.doc` hay `backup_2010.zip`) và khuyên bạn nên xóa cái nào.
@@ -137,7 +130,6 @@ gws drive files list --params '{"pageSize": 20}' --format json | gemini "Đây l
 
 ```bash
 gws calendar +agenda --today --format json | gemini "Đây là lịch họp hôm nay của tôi. Hãy liệt kê các buổi họp ra, và với mỗi buổi họp, hãy sáng tác 1 câu thơ vui nhộn (2 câu lục bát) hoặc 1 câu an ủi chữa lành phù hợp với tên buổi họp để động viên tôi đi họp."
-
 ```
 
 👉 *Kết quả:* "10h - Họp với sếp: Sếp la thì kệ sếp la / Mỉm cười cái nhẹ cho qua tháng ngày".
@@ -150,7 +142,6 @@ gws calendar +agenda --today --format json | gemini "Đây là lịch họp hôm
 
 ```bash
 gws gmail +triage --max 5 --query "category:promotions" --format json | gemini "Đọc các email quảng cáo này. Chỉ lọc ra cho tôi tên Thương hiệu, Mức giảm giá, và Mã Code (nếu có). Format dưới dạng bảng rõ ràng."
-
 ```
 
 ### 💌 Lab 4: Trợ Lý Chăm Sóc Khách Hàng (Đỉnh Cao)
@@ -161,14 +152,12 @@ gws gmail +triage --max 5 --query "category:promotions" --format json | gemini "
 
 ```bash
 echo "Khách hàng: Anh Tú, Sản phẩm: Bàn phím cơ. Khách hàng này phàn nàn là giao hàng hơi chậm" | gemini "Đóng vai nhân viên CSKH, viết 1 email ngắn gọn xin lỗi vụ giao chậm, cảm ơn vì đã mua bàn phím cơ và tặng mã giảm GIA50. Chỉ in ra nội dung email, không in gì thêm." > email_body.txt
-
 ```
 
 **Bước 2:** Bắn nội dung đó thẳng vào Gmail.
 
 ```bash
 gws gmail +send --to "tu.nguyen@example.com" --subject "Thư xin lỗi và Cảm ơn từ Shop GDG" --body "$(cat email_body.txt)"
-
 ```
 
 ---
@@ -184,7 +173,6 @@ Ban tổ chức đã tạo sẵn một file Google Sheets công khai. Để ch�
 
 ```bash
 gws sheets +append --spreadsheet "ID_CỦA_SHEET_BTC" --values "Tên của bạn, Quá đỉnh!, Nội dung bài thơ ở đây"
-
 ```
 
 **Hoàn thành! Hãy lên bàn check-in để nhận phần thưởng độc quyền từ Google Developer Groups! 🎉**
