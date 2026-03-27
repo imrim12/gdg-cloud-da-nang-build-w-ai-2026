@@ -150,12 +150,13 @@ Gemini CLI dùng **API key** từ Google AI Studio; luồng này **không** thay
 | Bước | Hành động |
 |------|-----------|
 | 1 | Mở [Google AI Studio — API keys](https://aistudio.google.com/app/apikey), đăng nhập Google, **Create API key**, rồi sao chép key. |
-| 2 | Trong terminal, chạy `gemini --yolo` (hoặc `gemini` nếu không cần chế độ xác nhận nhanh trong CLI). |
+| 2 | Trong terminal, chạy `gemini --approval-mode yolo` (hoặc `gemini` nếu không cần tự động duyệt thao tác trong CLI). Tránh dùng đồng thời `-y`/`--yolo` với `--approval-mode`. |
 | 3 | Tại prompt của Gemini CLI, gõ slash command: `/auth signin`. |
 | 4 | Chọn **Use Gemini API Key**, dán key vừa tạo. Sau khi xong, có thể thoát CLI (`/exit` hoặc `Ctrl+C`) nếu chỉ cấu hình một lần. |
+| 5 (tùy chọn, khuyến nghị cho lab có pipe) | Trong **cùng** terminal sẽ chạy lệnh `| gemini`, đặt biến môi trường: `export GEMINI_API_KEY="key-của-bạn"` (Windows PowerShell: `$env:GEMINI_API_KEY="..."`). Một số phiên bản Gemini CLI yêu cầu biến này khi chạy ở chế độ headless (`-p`). |
 
 ```bash
-gemini --yolo
+gemini --approval-mode yolo
 ```
 
 ```text
@@ -168,12 +169,14 @@ gemini --yolo
 
 Các lệnh mẫu dùng toán tử **pipe** (`|`) để đưa JSON từ `gws` vào `gemini`.
 
+**Lưu ý:** Với luồng có pipe, Gemini CLI phải chạy **headless**: dùng cờ **`-p`** (hoặc `--prompt`) kèm nội dung prompt. Prompt chỉ viết sau vị trí `gemini` (không có `-p`) sẽ mở chế độ tương tác và **không** phù hợp khi kết hợp `|`. Hoàn tất mục 5 và (nếu CLI báo thiếu key) đặt `GEMINI_API_KEY` như bảng ở trên.
+
 ### Lab 1 — Phân tích danh sách file Drive
 
 **Kịch bản:** Lấy danh sách file từ Drive và nhờ mô hình gợi ý giữ / xóa dựa trên tên và metadata trong JSON.
 
 ```bash
-gws drive files list --params '{"pageSize": 20}' --format json | gemini "Đây là danh sách file trên Google Drive của tôi định dạng JSON. Hãy phân tích và trả về cho tôi một bảng Markdown gồm: Tên file, Kích thước, và Gợi ý của bạn (Nên giữ hay Xóa đi dựa vào tên file xem nó có vẻ quan trọng hay là rác)."
+gws drive files list --params '{"pageSize": 20}' --format json | gemini -p "Đây là danh sách file trên Google Drive của tôi định dạng JSON. Hãy phân tích và trả về cho tôi một bảng Markdown gồm: Tên file, Kích thước, và Gợi ý của bạn (Nên giữ hay Xóa đi dựa vào tên file xem nó có vẻ quan trọng hay là rác)."
 ```
 
 ### Lab 2 — Lịch hôm nay + nội dung sáng tạo
@@ -181,7 +184,7 @@ gws drive files list --params '{"pageSize": 20}' --format json | gemini "Đây l
 **Kịch bản:** Đọc agenda Calendar hôm nay và tạo thơ / câu động viên theo từng sự kiện.
 
 ```bash
-gws calendar +agenda --today --format json | gemini "Đây là lịch họp hôm nay của tôi. Hãy liệt kê các buổi họp ra, và với mỗi buổi họp, hãy sáng tác 1 câu thơ vui nhộn (2 câu lục bát) hoặc 1 câu an ủi chữa lành phù hợp với tên buổi họp để động viên tôi đi họp."
+gws calendar +agenda --today --format json | gemini -p "Đây là lịch họp hôm nay của tôi. Hãy liệt kê các buổi họp ra, và với mỗi buổi họp, hãy sáng tác 1 câu thơ vui nhộn (2 câu lục bát) hoặc 1 câu an ủi chữa lành phù hợp với tên buổi họp để động viên tôi đi họp."
 ```
 
 ### Lab 3 — Tóm tắt email khuyến mãi
@@ -189,7 +192,7 @@ gws calendar +agenda --today --format json | gemini "Đây là lịch họp hôm
 **Kịch bản:** Lấy vài thư mục Promotions và trích thương hiệu, mức giảm, mã (nếu có).
 
 ```bash
-gws gmail +triage --max 5 --query "category:promotions" --format json | gemini "Đọc các email quảng cáo này. Chỉ lọc ra cho tôi tên Thương hiệu, Mức giảm giá, và Mã Code (nếu có). Format dưới dạng bảng rõ ràng."
+gws gmail +triage --max 5 --query "category:promotions" --format json | gemini -p "Đọc các email quảng cáo này. Chỉ lọc ra cho tôi tên Thương hiệu, Mức giảm giá, và Mã Code (nếu có). Format dưới dạng bảng rõ ràng."
 ```
 
 ### Lab 4 — Soạn email CSKH rồi gửi qua Gmail
@@ -197,7 +200,7 @@ gws gmail +triage --max 5 --query "category:promotions" --format json | gemini "
 **Bước 1** — Tạo nội dung bằng Gemini, ghi ra file:
 
 ```bash
-echo "Khách hàng: Anh Tú, Sản phẩm: Bàn phím cơ. Khách hàng này phàn nàn là giao hàng hơi chậm" | gemini "Đóng vai nhân viên CSKH, viết 1 email ngắn gọn xin lỗi vụ giao chậm, cảm ơn vì đã mua bàn phím cơ và tặng mã giảm GIA50. Chỉ in ra nội dung email, không in gì thêm." > email_body.txt
+echo "Khách hàng: Anh Tú, Sản phẩm: Bàn phím cơ. Khách hàng này phàn nàn là giao hàng hơi chậm" | gemini -p "Đóng vai nhân viên CSKH, viết 1 email ngắn gọn xin lỗi vụ giao chậm, cảm ơn vì đã mua bàn phím cơ và tặng mã giảm GIA50. Chỉ in ra nội dung email, không in gì thêm." > email_body.txt
 ```
 
 **Bước 2** — Gửi mail (thay email người nhận và tiêu đề cho đúng kịch bản của bạn):
@@ -205,6 +208,8 @@ echo "Khách hàng: Anh Tú, Sản phẩm: Bàn phím cơ. Khách hàng này ph�
 ```bash
 gws gmail +send --to "tu.nguyen@example.com" --subject "Thư xin lỗi và Cảm ơn từ Shop GDG" --body "$(cat email_body.txt)"
 ```
+
+Để **kiểm tra lệnh gửi** mà không gửi thật, thêm `--dry-run` (in ra payload JSON có `dry_run: true`).
 
 ---
 

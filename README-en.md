@@ -150,12 +150,13 @@ Gemini CLI uses an **API key** from Google AI Studio; this does **not** replace 
 | Step | Action |
 |------|--------|
 | 1 | Open [Google AI Studio — API keys](https://aistudio.google.com/app/apikey), sign in, **Create API key**, and copy it. |
-| 2 | In a terminal, run `gemini --yolo` (or `gemini` if you do not want quick-approval / “yolo” behavior in the CLI). |
+| 2 | In a terminal, run `gemini --approval-mode yolo` (or `gemini` if you do not want auto-approved actions). Do not combine `-y`/`--yolo` with `--approval-mode`. |
 | 3 | At the Gemini CLI prompt, enter the slash command: `/auth signin`. |
 | 4 | Choose **Use Gemini API Key**, paste your key. When done, you may exit (`/exit` or `Ctrl+C`) if this was a one-time setup. |
+| 5 (optional; recommended for piped labs) | In the **same** terminal where you will run `| gemini`, set `export GEMINI_API_KEY="your-key"` (Windows PowerShell: `$env:GEMINI_API_KEY="..."`). Some Gemini CLI versions require this for headless mode (`-p`). |
 
 ```bash
-gemini --yolo
+gemini --approval-mode yolo
 ```
 
 ```text
@@ -168,12 +169,14 @@ gemini --yolo
 
 The examples use the pipe (`|`) to stream JSON from `gws` into `gemini`.
 
+**Note:** For piped flows, Gemini CLI must run **headless**: use **`-p`** / `--prompt` with your instruction text. A bare `gemini "…"` (no `-p`) starts **interactive** mode and is a poor fit with `|`. Finish Section 5 and, if the CLI reports a missing key, set `GEMINI_API_KEY` as in the table above.
+
 ### Lab 1 — Analyze a Drive file listing
 
 **Scenario:** List files from Drive and ask the model for keep/delete suggestions from names and JSON metadata.
 
 ```bash
-gws drive files list --params '{"pageSize": 20}' --format json | gemini "This is my Google Drive file list as JSON. Analyze it and return a Markdown table with: file name, size, and your suggestion (keep or delete based on whether the name looks important or like clutter)."
+gws drive files list --params '{"pageSize": 20}' --format json | gemini -p "This is my Google Drive file list as JSON. Analyze it and return a Markdown table with: file name, size, and your suggestion (keep or delete based on whether the name looks important or like clutter)."
 ```
 
 ### Lab 2 — Today’s calendar + creative lines
@@ -181,7 +184,7 @@ gws drive files list --params '{"pageSize": 20}' --format json | gemini "This is
 **Scenario:** Read today’s Calendar agenda and generate a short poem or encouraging line per event.
 
 ```bash
-gws calendar +agenda --today --format json | gemini "This is my calendar for today. List each meeting, and for each one write either a fun two-line poem or a short encouraging note that fits the meeting title."
+gws calendar +agenda --today --format json | gemini -p "This is my calendar for today. List each meeting, and for each one write either a fun two-line poem or a short encouraging note that fits the meeting title."
 ```
 
 ### Lab 3 — Summarize promotional email
@@ -189,7 +192,7 @@ gws calendar +agenda --today --format json | gemini "This is my calendar for tod
 **Scenario:** Pull a few Promotions messages and extract brand, discount, and promo codes (if any).
 
 ```bash
-gws gmail +triage --max 5 --query "category:promotions" --format json | gemini "Read these promotional emails. Extract only: brand name, discount level, and promo code if present. Format as a clear table."
+gws gmail +triage --max 5 --query "category:promotions" --format json | gemini -p "Read these promotional emails. Extract only: brand name, discount level, and promo code if present. Format as a clear table."
 ```
 
 ### Lab 4 — Draft CS email, send via Gmail
@@ -197,7 +200,7 @@ gws gmail +triage --max 5 --query "category:promotions" --format json | gemini "
 **Step 1** — Generate body text with Gemini and save to a file:
 
 ```bash
-echo "Customer: Anh Tu. Product: mechanical keyboard. They complained shipping was slow." | gemini "You are support staff. Write a short email apologizing for slow shipping, thanking them for buying the mechanical keyboard, and include discount code GIA50. Output only the email body, nothing else." > email_body.txt
+echo "Customer: Anh Tu. Product: mechanical keyboard. They complained shipping was slow." | gemini -p "You are support staff. Write a short email apologizing for slow shipping, thanking them for buying the mechanical keyboard, and include discount code GIA50. Output only the email body, nothing else." > email_body.txt
 ```
 
 **Step 2** — Send (change recipient and subject to match your scenario):
@@ -205,6 +208,8 @@ echo "Customer: Anh Tu. Product: mechanical keyboard. They complained shipping w
 ```bash
 gws gmail +send --to "tu.nguyen@example.com" --subject "Sorry and thanks from Shop GDG" --body "$(cat email_body.txt)"
 ```
+
+To **validate the send command** without delivering mail, add `--dry-run` (prints a JSON payload with `dry_run: true`).
 
 ---
 
