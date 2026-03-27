@@ -121,7 +121,7 @@ gws auth setup
 ### Bước 3.3. Đăng nhập Workspace CLI
 
 ```bash
-gws auth login
+gws auth login --scopes "openid,https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/chat.messages,https://www.googleapis.com/auth/classroom.announcements,https://www.googleapis.com/auth/classroom.courses,https://www.googleapis.com/auth/classroom.coursework.students,https://www.googleapis.com/auth/classroom.courseworkmaterials,https://www.googleapis.com/auth/contacts,https://www.googleapis.com/auth/documents,https://www.googleapis.com/auth/drive,https://www.googleapis.com/auth/drive.file,https://www.googleapis.com/auth/forms.body,https://www.googleapis.com/auth/gmail.modify,https://www.googleapis.com/auth/meetings.space.created,https://www.googleapis.com/auth/presentations,https://www.googleapis.com/auth/script.deployments,https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/tasks"
 ```
 
 Trình duyệt mở — xử lý theo thứ tự:
