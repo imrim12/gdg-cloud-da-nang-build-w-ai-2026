@@ -1,160 +1,206 @@
-# 🚀 Codelab GDG Cloud: "Hack" Thời Gian Với Gemini CLI & Google Workspace CLI
+# Codelab GDG Cloud: Tự động hóa với Gemini CLI & Google Workspace CLI
 
-Chào mừng các pháp sư code đến với Codelab Build with AI! Hôm nay, chúng ta sẽ kết hợp "não bộ" của **Gemini CLI** và "chân tay" của **Google Workspace CLI (`gws`)** để tự động hóa những công việc nhàm chán nhất.
+**Ngôn ngữ / Language:** Tiếng Việt (bản này) · [English → README-en.md](README-en.md)
 
-**Mục tiêu:** Thoát kiếp làm "chạy vặt" chốn công sở, để AI và CLI làm thay bạn! 🤖✨
+---
 
-## 🛠️ PHẦN 1: CHUẨN BỊ "ĐỒ NGHỀ" (Prerequisites)
+Hướng dẫn workshop **Build with AI** kết hợp **Gemini CLI** (mô hình ngôn ngữ) và **Google Workspace CLI (`gws`)** để tự động hóa thao tác trên Gmail, Drive, Calendar và các dịch vụ Workspace khác.
 
-*(Dành cho máy tính trắng tinh, chưa có gì)*
+**Mục tiêu:** Thiết lập môi trường, xác thực an toàn, và thực hành các luồng `gws` → `gemini` qua pipeline (`|`).
 
-### 1. Cài đặt Node.js (Bắt buộc)
+---
 
-Cả `geminicli` và `gws` đều chạy trên nền tảng Node.js.
+## Mục lục
 
-* **Mac/Windows/Linux:** Tải và cài đặt bản LTS mới nhất tại nodejs.org.
-* Mở Terminal (Mac) hoặc PowerShell/CMD (Windows), gõ thử: `node -v` và `npm -v` thấy ra số phiên bản là thành công.
+1. [Yêu cầu hệ thống](#1-yêu-cầu-hệ-thống)
+2. [Cài đặt công cụ](#2-cài-đặt-công-cụ)
+3. [Workspace CLI: dự án, OAuth và đăng nhập](#3-workspace-cli-dự-án-oauth-và-đăng-nhập)
+4. [Kiểm tra kết nối gws](#4-kiểm-tra-kết-nối-gws)
+5. [Gemini CLI: API key và đăng nhập](#5-gemini-cli-api-key-và-đăng-nhập)
+6. [Bài thực hành (Labs)](#6-bài-thực-hành-labs)
+7. [Nộp bài](#7-nộp-bài)
 
-### 2. Cài đặt Google Cloud CLI (`gcloud`)
+---
 
-Dùng để giao tiếp với Google Cloud Platform (GCP).
+## 1. Yêu cầu hệ thống
 
-* Làm theo hướng dẫn cài đặt trên trang chủ Google cho Windows hoặc Mac.
-* Cài xong gõ: `gcloud --version`.
+Áp dụng cho máy chưa cài sẵn Node.js hoặc cần kiểm tra phiên bản.
 
-### 3. Cài đặt Gemini CLI & Google Workspace CLI
+### 1.1. Node.js (bắt buộc)
 
-Chạy lệnh sau trong Terminal/CMD:
+`gemini` và `gws` chạy trên nền tảng Node.js.
+
+**Kiểm tra phiên bản**
+
+- **Windows:** mở PowerShell, chạy:
+
+```bash
+node -v
+```
+
+- **macOS / Linux:** mở Terminal, chạy:
+
+```bash
+node -v
+```
+
+Nếu hiển thị số phiên bản (ví dụ `v20.x.x`), Node.js đã sẵn sàng.
+
+**Cài đặt (chọn một trong hai cách)**
+
+- **Cách A — qua pnpm (khuyến nghị nếu bạn dùng pnpm):**
+
+  - Windows (PowerShell):
+
+```powershell
+Invoke-WebRequest https://get.pnpm.io/install.ps1 -UseBasicParsing | Invoke-Expression
+pnpm env use --global lts
+```
+
+  - macOS / Linux:
+
+```bash
+curl -fsSL https://get.pnpm.io/install.sh | sh -
+pnpm env use --global lts
+```
+
+- **Cách B — bản cài đặt chính thức:** tải bản **LTS** từ [https://nodejs.org/en/download](https://nodejs.org/en/download) và cài theo hướng dẫn trên trang.
+
+### 1.2. Google Cloud CLI (`gcloud`)
+
+Dùng để làm việc với Google Cloud (dự án, API, OAuth trong luồng `gws`).
+
+1. Làm theo hướng dẫn tại [https://docs.cloud.google.com/sdk/docs/install-sdk](https://docs.cloud.google.com/sdk/docs/install-sdk) cho hệ điều hành của bạn.
+2. Sau khi cài, xác minh:
+
+```bash
+gcloud --version
+```
+
+---
+
+## 2. Cài đặt công cụ
+
+Trong Terminal / PowerShell (sau khi đã có Node.js và `npm`):
 
 ```bash
 npm install -g @google/gemini-cli
 npm install -g @googleworkspace/cli
 ```
 
-## ☁️ PHẦN 2: KHAI BÁO VỚI "VŨ TRỤ" GOOGLE (Setup & Auth)
+---
 
-### Bước 1: Lấy API Key cho Gemini (Não bộ)
+## 3. Workspace CLI: dự án, OAuth và đăng nhập
 
-1. Vào trang Google AI Studio (đăng nhập bằng tài khoản Google).
-2. Bấm **"Create API Key"**.
-3. Copy đoạn mã đó. Mở Terminal gõ lệnh:
-```bash
-gemini auth --key "DÁN_API_KEY_CỦA_BẠN_VÀO_ĐÂY"
-```
+Trên **cùng một Google Cloud project**, làm lần lượt các bước dưới đây. Thứ tự giúp tránh lỗi **403** khi OAuth đang ở chế độ **Testing** (chưa khai báo test user vẫn cố hoàn tất đăng nhập).
 
+### Bước 3.1. Trình thiết lập `gws` (`gws auth setup`)
 
-*Vậy là não bộ Gemini đã sẵn sàng!*
-
-### Bước 2: Khởi tạo Google Workspace CLI Tự Động (Chân tay)
-
-`gws` cung cấp sẵn một công cụ setup tự động tuyệt vời, giúp chúng ta rút ngắn quy trình trên Cloud Console.
-
-1. Trước tiên, đảm bảo bạn đã đăng nhập Google Cloud CLI:
-```bash
-gcloud auth login
-```
-
-
-*(Trình duyệt hiện ra, bạn đăng nhập tài khoản Google của mình)*
-2. Chạy trình thiết lập tự động của gws:
 ```bash
 gws auth setup
 ```
 
+Điều hướng bằng phím mũi tên và **Enter**:
 
-3. **Làm theo hướng dẫn tương tác trên Terminal (Sử dụng phím mũi tên và Enter):**
-* **Step 1 & 2:** Tool tự nhận diện `gcloud` và email của bạn.
-* **Step 3 (GCP project):** Chọn `Create new project` (Tạo mới) -> Đặt tên vd: `gdg-cloud-codelab-tenban`.
-* **Step 4 (Workspace APIs):** Tool tự động đánh dấu các API cần thiết (có thể dùng phím Space để chọn thêm Docs, Slides, Forms, Chat nếu muốn) -> Bấm `Enter` để bật (enable). Hãy kiên nhẫn đợi màn hình load.
-* **Step 5 (OAuth credentials):** Nếu Terminal báo xanh `Setup complete! Starting 'gws auth login'...`, bạn chuyển sang Bước 2.5 ngay lập tức. *(Lưu ý: Không tiếp tục đăng nhập vội ở bước này).*
+| Bước trong tool | Việc cần làm |
+|-----------------|--------------|
+| 1–2 | Tool kiểm tra `gcloud`; đăng nhập GCP nếu được yêu cầu. |
+| 3 (GCP project) | **Create new project** và đặt tên (ví dụ `gdg-cloud-codelab-<tên-bạn>`), hoặc chọn project sẵn có. |
+| 4 (Workspace APIs) | Bật API cần thiết; **Space** để chọn thêm Docs, Slides, Forms, Chat nếu cần → **Enter** để enable → chờ hoàn tất. |
+| 5 (OAuth credentials) | Khi thấy dạng `Setup complete! Starting 'gws auth login'...`, **tạm dừng** — chuyển **Bước 3.2** khai báo test user **trước** khi hoàn tất đăng nhập OAuth trong trình duyệt. |
 
+### Bước 3.2. Thêm test user (tránh lỗi 403)
 
+Ở chế độ **Testing**, chỉ các Gmail trong **Test users** mới đăng nhập OAuth được.
 
-### Bước 2.5: Thêm Test User (Cực kỳ quan trọng - Chống lỗi 403) 🚨
+1. [Google Cloud Console](https://console.cloud.google.com/) → chọn **đúng project** vừa dùng trong `gws auth setup`.
+2. **Google Auth platform** (hoặc **APIs & Services** → **OAuth consent screen**) → **Audience** / **Test users**.
+3. **Add users** → nhập **chính xác** Gmail dùng cho `gws auth login` → lưu.
+4. Xác nhận địa chỉ đã nằm trong danh sách.
 
-Vì ứng dụng của bạn đang ở chế độ Thử nghiệm (Testing), Google sẽ CHẶN MỌI TRUY CẬP nếu bạn không khai báo email được phép test.
-
-1. Vào trang Google Cloud Console -> **Google Auth Platform** -> Chọn tab **Audience** (Đảm bảo đang chọn đúng Project vừa tạo ở trên).
-2. Kéo xuống tìm phần **Test users** (Người dùng thử nghiệm).
-3. Bấm nút **+ ADD USERS** (Thêm người dùng).
-4. **Gõ chính xác địa chỉ Gmail của bạn** vào ô trống -> Bấm biểu tượng Lưu/Add. Đảm bảo email của bạn đã hiện trong danh sách bên dưới.
-
-### Bước 3: Đăng nhập và Cấp quyền cho Workspace CLI
-
-Sau khi đã nạp email vào Test users, bước cuối cùng là cho phép công cụ này truy cập dữ liệu. Mở Terminal, gõ lệnh sau:
+### Bước 3.3. Đăng nhập Workspace CLI
 
 ```bash
 gws auth login
 ```
 
-Trình duyệt sẽ tự động mở ra. Bạn thực hiện đúng các bước sau:
+Trình duyệt mở — xử lý theo thứ tự:
 
-1. Chọn tài khoản Google của bạn.
-2. Màn hình hiện cảnh báo đen **"Google hasn't verified this app"** (Google chưa xác minh ứng dụng này). Đừng lo vì đây là app nội bộ của bạn -> Bấm nút **Continue (Tiếp tục)**.
-3. Ở màn hình cấp quyền tiếp theo, hãy chú ý **tích chọn vào ô "Select all"** (hoặc tích tay vào tất cả các quyền hiển thị như Gmail, Drive, Calendar...) -> Cuộn xuống và bấm **Continue**.
-4. Quay lại Terminal, nếu bạn thấy đoạn JSON có chứa `"status": "success"`, xin chúc mừng! Bạn đã hoàn tất cấu hình.
-
-### Bước 4: Test thử "Siêu quyền lực" 🚀
-
-Hãy gõ thử lệnh sau vào Terminal để xem chúng ta đã liên kết thành công với Google Drive chưa:
-
-```bash
-gws drive files list --params '{"pageSize": 1}'
-```
-
-*(Nếu Terminal trả về một đoạn JSON chứa danh sách các file trong Drive của bạn như "Bảng tính không có tiêu đề", "Tài liệu không có tiêu đề"... thì hệ thống đã sẵn sàng 100%!).*
+1. Chọn tài khoản **trùng** test user (Bước 3.2).
+2. Cảnh báo **Google hasn't verified this app**: bình thường với client dev / nội bộ → **Continue** (hoặc **Advanced** → **Continue**).
+3. Màn hình quyền: chọn scope đủ nhu cầu (workshop thường dùng **Select all**) → **Continue**.
+4. Trong terminal, JSON có `"status": "success"` nghĩa là đăng nhập thành công.
 
 ---
 
-## ⚔️ PHẦN 3: THỰC CHIẾN (THE LABS)
+## 4. Kiểm tra kết nối gws
 
-*Cú pháp thần thánh của ngày hôm nay là Dấu Pipe `|` (Đẩy kết quả của lệnh này làm đầu vào cho lệnh kia).*
+```bash
+gws drive files list
+```
 
-### 🧹 Lab 1: Thợ Săn Rác Drive (Dọn dẹp "Mây" cuối tuần)
+Nếu nhận được kết quả (thường là JSON) **không** báo lỗi quyền — kể cả danh sách rỗng — thì `gws` đã hoạt động. Sau đó chuyển sang **mục 5** để cấu hình Gemini cho các lab dùng pipe (`|`).
 
-*Kịch bản: Drive đầy, bạn cần AI phân tích xem file nào cũ, to mà không dùng để dọn.*
+---
 
-**Lệnh thực thi:**
+## 5. Gemini CLI: API key và đăng nhập
+
+Gemini CLI dùng **API key** từ Google AI Studio; luồng này **không** thay thế OAuth của `gws` ở mục 3. Hoàn tất cả hai phần trước khi làm lab.
+
+| Bước | Hành động |
+|------|-----------|
+| 1 | Mở [Google AI Studio — API keys](https://aistudio.google.com/app/apikey), đăng nhập Google, **Create API key**, rồi sao chép key. |
+| 2 | Trong terminal, chạy `gemini --yolo` (hoặc `gemini` nếu không cần chế độ xác nhận nhanh trong CLI). |
+| 3 | Tại prompt của Gemini CLI, gõ slash command: `/auth signin`. |
+| 4 | Chọn **Use Gemini API Key**, dán key vừa tạo. Sau khi xong, có thể thoát CLI (`/exit` hoặc `Ctrl+C`) nếu chỉ cấu hình một lần. |
+
+```bash
+gemini --yolo
+```
+
+```text
+/auth signin
+```
+
+---
+
+## 6. Bài thực hành (Labs)
+
+Các lệnh mẫu dùng toán tử **pipe** (`|`) để đưa JSON từ `gws` vào `gemini`.
+
+### Lab 1 — Phân tích danh sách file Drive
+
+**Kịch bản:** Lấy danh sách file từ Drive và nhờ mô hình gợi ý giữ / xóa dựa trên tên và metadata trong JSON.
 
 ```bash
 gws drive files list --params '{"pageSize": 20}' --format json | gemini "Đây là danh sách file trên Google Drive của tôi định dạng JSON. Hãy phân tích và trả về cho tôi một bảng Markdown gồm: Tên file, Kích thước, và Gợi ý của bạn (Nên giữ hay Xóa đi dựa vào tên file xem nó có vẻ quan trọng hay là rác)."
 ```
 
-👉 *Kết quả:* Gemini sẽ "ngửi" tên file (như `untitled.doc` hay `backup_2010.zip`) và khuyên bạn nên xóa cái nào.
+### Lab 2 — Lịch hôm nay + nội dung sáng tạo
 
-### 🧘‍♂️ Lab 2: Trợ lý Nhắc Lịch Họp kiểu "Chữa Lành"
-
-*Kịch bản: Check lịch hôm nay và nhờ AI làm một bài thơ hoặc câu quote động viên cho từng buổi họp để có mood làm việc.*
-
-**Lệnh thực thi:**
+**Kịch bản:** Đọc agenda Calendar hôm nay và tạo thơ / câu động viên theo từng sự kiện.
 
 ```bash
 gws calendar +agenda --today --format json | gemini "Đây là lịch họp hôm nay của tôi. Hãy liệt kê các buổi họp ra, và với mỗi buổi họp, hãy sáng tác 1 câu thơ vui nhộn (2 câu lục bát) hoặc 1 câu an ủi chữa lành phù hợp với tên buổi họp để động viên tôi đi họp."
 ```
 
-👉 *Kết quả:* "10h - Họp với sếp: Sếp la thì kệ sếp la / Mỉm cười cái nhẹ cho qua tháng ngày".
+### Lab 3 — Tóm tắt email khuyến mãi
 
-### 🛍️ Lab 3: Máy Lọc Email "Săn Deal Sập Sàn"
-
-*Kịch bản: Cuối tuần muốn tiêu tiền, nhờ AI lùng sục trong Gmail các email quảng cáo và tóm tắt lại deal nào ngon nhất.*
-
-**Lệnh thực thi:**
+**Kịch bản:** Lấy vài thư mục Promotions và trích thương hiệu, mức giảm, mã (nếu có).
 
 ```bash
 gws gmail +triage --max 5 --query "category:promotions" --format json | gemini "Đọc các email quảng cáo này. Chỉ lọc ra cho tôi tên Thương hiệu, Mức giảm giá, và Mã Code (nếu có). Format dưới dạng bảng rõ ràng."
 ```
 
-### 💌 Lab 4: Trợ Lý Chăm Sóc Khách Hàng (Đỉnh Cao)
+### Lab 4 — Soạn email CSKH rồi gửi qua Gmail
 
-*Kịch bản: Bạn có một danh sách tên khách hàng và sản phẩm họ mua. Nhờ AI tự động viết email cảm ơn ĐỘC QUYỀN cho từng người và gửi đi trực tiếp.*
-
-**Bước 1:** Dùng AI tạo nội dung từ 1 thông tin mẫu.
+**Bước 1** — Tạo nội dung bằng Gemini, ghi ra file:
 
 ```bash
 echo "Khách hàng: Anh Tú, Sản phẩm: Bàn phím cơ. Khách hàng này phàn nàn là giao hàng hơi chậm" | gemini "Đóng vai nhân viên CSKH, viết 1 email ngắn gọn xin lỗi vụ giao chậm, cảm ơn vì đã mua bàn phím cơ và tặng mã giảm GIA50. Chỉ in ra nội dung email, không in gì thêm." > email_body.txt
 ```
 
-**Bước 2:** Bắn nội dung đó thẳng vào Gmail.
+**Bước 2** — Gửi mail (thay email người nhận và tiêu đề cho đúng kịch bản của bạn):
 
 ```bash
 gws gmail +send --to "tu.nguyen@example.com" --subject "Thư xin lỗi và Cảm ơn từ Shop GDG" --body "$(cat email_body.txt)"
@@ -162,17 +208,18 @@ gws gmail +send --to "tu.nguyen@example.com" --subject "Thư xin lỗi và Cảm
 
 ---
 
-## 🎁 PHẦN 4: NỘP BÀI NHẬN QUÀ (Submission)
+## 7. Nộp bài
 
-Ban tổ chức đã tạo sẵn một file Google Sheets công khai. Để chứng minh bạn đã làm xong Codelab và nhận Swag, hãy dùng CLI bắn thẳng thông tin của bạn vào Sheet đó!
+BTC cung cấp một Google Sheet công khai. Sau khi hoàn thành codelab, ghi thông tin của bạn bằng CLI.
 
-**Yêu cầu:** Ghi "Tên bạn, Cảm nhận về Codelab, Kết quả bài thơ chữa lành ở Lab 2".
+**Nội dung cần gửi:** Họ tên, cảm nhận về codelab, và (nếu có) kết quả thơ / quote từ Lab 2.
 
-**Lệnh nộp bài:**
-*(Thay `ID_CỦA_SHEET_BTC` bằng ID mà MC cung cấp trên màn hình)*
+Thay `SPREADSHEET_ID_FROM_MC` bằng ID do MC công bố:
 
 ```bash
-gws sheets +append --spreadsheet "ID_CỦA_SHEET_BTC" --values "Tên của bạn, Quá đỉnh!, Nội dung bài thơ ở đây"
+gws sheets +append --spreadsheet "SPREADSHEET_ID_FROM_MC" --values "Tên của bạn, Cảm nhận ngắn, Nội dung từ Lab 2"
 ```
 
-**Hoàn thành! Hãy lên bàn check-in để nhận phần thưởng độc quyền từ Google Developer Groups! 🎉**
+---
+
+*Tài liệu dùng cho GDG Cloud Đà Nẵng — Build with AI.*
