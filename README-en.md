@@ -107,18 +107,26 @@ Use the arrow keys and **Enter**:
 | 1–2 | The tool checks `gcloud`; sign in to GCP if asked. |
 | 3 (GCP project) | **Create new project** and name it (for example `gdg-cloud-codelab-<your-name>`), or select an existing project. |
 | 4 (Workspace APIs) | Enable required APIs; **Space** to add Docs, Slides, Forms, Chat if needed → **Enter** to enable — wait until it finishes. |
-| 5 (OAuth credentials) | When you see something like `Setup complete! Starting 'gws auth login'...`, **stop** — go to **Step 3.2** and add test users **before** you complete OAuth in the browser. |
+| 5 (OAuth credentials) | When you see something like `Setup complete! Starting 'gws auth login'...`, **stop** — finish **Step 3.2** (Data Access) and **Step 3.3** (test users) **before** you complete OAuth in the browser. |
 
-### Step 3.2. Add test users (avoid HTTP 403)
+### Step 3.2. Register scopes (Google Auth Platform → Data Access)
+
+The consent screen can only offer permissions that are registered for the project:
+
+1. Open [Google Cloud Console](https://console.cloud.google.com/) and select the **same project** as `gws`.
+2. **Google Auth Platform** (or **APIs & Services** → **OAuth consent screen**) → **Data Access** — or open [Data Access](https://console.cloud.google.com/auth/scopes) and pick the project in the top bar.
+3. **Add scope** / **Add or remove scopes** — add every scope your app will request (match the `gws auth login` string in **Step 3.4**: Calendar, Chat, Classroom, Contacts, Docs, Drive, Forms, Gmail, Meet, Slides, Apps Script, Sheets, Tasks, `openid`, `userinfo.email`, etc.). Save.
+
+### Step 3.3. Add test users (avoid HTTP 403)
 
 In **Testing** mode, only Gmail addresses listed under **Test users** may complete OAuth.
 
-1. Open [Google Cloud Console](https://console.cloud.google.com/) and select the **same project** used in `gws auth setup`.
-2. **Google Auth Platform** (or **APIs & Services** → **OAuth consent screen**) → **Audience** / **Test users**.
+1. Same project in [Google Cloud Console](https://console.cloud.google.com/).
+2. **Google Auth Platform** → **Audience** / **Test users**.
 3. **Add users** → enter the **exact** Gmail you will use for `gws auth login` → save.
 4. Confirm it appears in the list.
 
-### Step 3.3. Sign in to Workspace CLI
+### Step 3.4. Sign in to Workspace CLI
 
 ```bash
 gws auth login --scopes "openid,https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/chat.messages,https://www.googleapis.com/auth/classroom.announcements,https://www.googleapis.com/auth/classroom.courses,https://www.googleapis.com/auth/classroom.coursework.students,https://www.googleapis.com/auth/classroom.courseworkmaterials,https://www.googleapis.com/auth/contacts,https://www.googleapis.com/auth/documents,https://www.googleapis.com/auth/drive,https://www.googleapis.com/auth/drive.file,https://www.googleapis.com/auth/forms.body,https://www.googleapis.com/auth/gmail.modify,https://www.googleapis.com/auth/meetings.space.created,https://www.googleapis.com/auth/presentations,https://www.googleapis.com/auth/script.deployments,https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/tasks"
@@ -126,7 +134,7 @@ gws auth login --scopes "openid,https://www.googleapis.com/auth/userinfo.email,h
 
 The browser opens — follow this order:
 
-1. Pick the account that matches your test user (Step 3.2).
+1. Pick the account that matches your test user (Step 3.3).
 2. **Google hasn't verified this app** is expected for dev / internal clients → **Continue** (or **Advanced** → **Continue**).
 3. Consent screen: grant the scopes you need (workshops often use **Select all**) → **Continue**.
 4. In the terminal, JSON with `"status": "success"` means sign-in succeeded.

@@ -107,18 +107,26 @@ gws auth setup
 | 1–2 | Tool kiểm tra `gcloud`; đăng nhập GCP nếu được yêu cầu. |
 | 3 (GCP project) | **Create new project** và đặt tên (ví dụ `gdg-cloud-codelab-<tên-bạn>`), hoặc chọn project sẵn có. |
 | 4 (Workspace APIs) | Bật API cần thiết; **Space** để chọn thêm Docs, Slides, Forms, Chat nếu cần → **Enter** để enable → chờ hoàn tất. |
-| 5 (OAuth credentials) | Khi thấy dạng `Setup complete! Starting 'gws auth login'...`, **tạm dừng** — chuyển **Bước 3.2** khai báo test user **trước** khi hoàn tất đăng nhập OAuth trong trình duyệt. |
+| 5 (OAuth credentials) | Khi thấy dạng `Setup complete! Starting 'gws auth login'...`, **tạm dừng** — làm **Bước 3.2** (Data Access) và **Bước 3.3** (test user) **trước** khi hoàn tất đăng nhập OAuth trong trình duyệt. |
 
-### Bước 3.2. Thêm test user (tránh lỗi 403)
+### Bước 3.2. Thêm scope vào project (Google Auth Platform → Data Access)
+
+Để màn hình đồng ý OAuth có thể hiển thị và cấp đúng quyền, cần khai báo scope ở Cloud Console:
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → chọn **đúng project** dùng với `gws`.
+2. **Google Auth Platform** (hoặc **APIs & Services** → **OAuth consent screen**) → **Data Access** — có thể mở [Data Access](https://console.cloud.google.com/auth/scopes) (chọn đúng project ở thanh trên).
+3. **Add scope** / **Add or remove scopes** — thêm các scope tương ứng với lệnh `gws auth login` ở **Bước 3.4** (Calendar, Chat, Classroom, Contacts, Docs, Drive, Forms, Gmail, Meet, Presentations, Apps Script, Sheets, Tasks, `openid`, `userinfo.email`, …). Lưu thay đổi.
+
+### Bước 3.3. Thêm test user (tránh lỗi 403)
 
 Ở chế độ **Testing**, chỉ các Gmail trong **Test users** mới đăng nhập OAuth được.
 
-1. [Google Cloud Console](https://console.cloud.google.com/) → chọn **đúng project** vừa dùng trong `gws auth setup`.
-2. **Google Auth platform** (hoặc **APIs & Services** → **OAuth consent screen**) → **Audience** / **Test users**.
+1. Cùng project trên [Google Cloud Console](https://console.cloud.google.com/).
+2. **Google Auth platform** → **Audience** / **Test users**.
 3. **Add users** → nhập **chính xác** Gmail dùng cho `gws auth login` → lưu.
 4. Xác nhận địa chỉ đã nằm trong danh sách.
 
-### Bước 3.3. Đăng nhập Workspace CLI
+### Bước 3.4. Đăng nhập Workspace CLI
 
 ```bash
 gws auth login --scopes "openid,https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/chat.messages,https://www.googleapis.com/auth/classroom.announcements,https://www.googleapis.com/auth/classroom.courses,https://www.googleapis.com/auth/classroom.coursework.students,https://www.googleapis.com/auth/classroom.courseworkmaterials,https://www.googleapis.com/auth/contacts,https://www.googleapis.com/auth/documents,https://www.googleapis.com/auth/drive,https://www.googleapis.com/auth/drive.file,https://www.googleapis.com/auth/forms.body,https://www.googleapis.com/auth/gmail.modify,https://www.googleapis.com/auth/meetings.space.created,https://www.googleapis.com/auth/presentations,https://www.googleapis.com/auth/script.deployments,https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/tasks"
@@ -126,7 +134,7 @@ gws auth login --scopes "openid,https://www.googleapis.com/auth/userinfo.email,h
 
 Trình duyệt mở — xử lý theo thứ tự:
 
-1. Chọn tài khoản **trùng** test user (Bước 3.2).
+1. Chọn tài khoản **trùng** test user (Bước 3.3).
 2. Cảnh báo **Google hasn't verified this app**: bình thường với client dev / nội bộ → **Continue** (hoặc **Advanced** → **Continue**).
 3. Màn hình quyền: chọn scope đủ nhu cầu (workshop thường dùng **Select all**) → **Continue**.
 4. Trong terminal, JSON có `"status": "success"` nghĩa là đăng nhập thành công.
