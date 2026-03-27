@@ -115,7 +115,9 @@ gws auth setup
 
 1. [Google Cloud Console](https://console.cloud.google.com/) → chọn **đúng project** dùng với `gws`.
 2. **Google Auth Platform** (hoặc **APIs & Services** → **OAuth consent screen**) → **Data Access** — có thể mở [Data Access](https://console.cloud.google.com/auth/scopes) (chọn đúng project ở thanh trên).
-3. **Add scope** / **Add or remove scopes** — thêm các scope tương ứng với lệnh `gws auth login` ở **Bước 3.4** (Calendar, Chat, Classroom, Contacts, Docs, Drive, Forms, Gmail, Meet, Presentations, Apps Script, Sheets, Tasks, `openid`, `userinfo.email`, …). Lưu thay đổi.
+3. **Add scope** / **Add or remove scopes** — thêm các scope tương ứng với lệnh `gws auth login` ở **Bước 3.4** (Calendar, Chat — `chat.messages`, `chat.spaces`, `chat.memberships`, Classroom, Contacts, Docs, Drive, Forms, Gmail, Meet, Presentations, Apps Script, Sheets, Tasks, `openid`, `userinfo.email`, …). Lưu thay đổi.
+
+> **Ghi chú (Chat API):** Trên Google Cloud Console, Chat API được mô tả là **chỉ dành cho Google Workspace**; tài khoản Gmail cá nhân có thể không cấu hình hoặc không gọi Chat API/`gws` chat đầy đủ như trong lab.
 
 ### Bước 3.3. Thêm test user (tránh lỗi 403)
 
@@ -129,7 +131,7 @@ gws auth setup
 ### Bước 3.4. Đăng nhập Workspace CLI
 
 ```bash
-gws auth login --scopes "openid,https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/chat.messages,https://www.googleapis.com/auth/classroom.announcements,https://www.googleapis.com/auth/classroom.courses,https://www.googleapis.com/auth/classroom.coursework.students,https://www.googleapis.com/auth/classroom.courseworkmaterials,https://www.googleapis.com/auth/contacts,https://www.googleapis.com/auth/documents,https://www.googleapis.com/auth/drive,https://www.googleapis.com/auth/drive.file,https://www.googleapis.com/auth/forms.body,https://www.googleapis.com/auth/gmail.modify,https://www.googleapis.com/auth/meetings.space.created,https://www.googleapis.com/auth/presentations,https://www.googleapis.com/auth/script.deployments,https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/tasks"
+gws auth login --scopes "openid,https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/chat.messages,https://www.googleapis.com/auth/chat.spaces,https://www.googleapis.com/auth/chat.memberships,https://www.googleapis.com/auth/classroom.announcements,https://www.googleapis.com/auth/classroom.courses,https://www.googleapis.com/auth/classroom.coursework.students,https://www.googleapis.com/auth/classroom.courseworkmaterials,https://www.googleapis.com/auth/contacts,https://www.googleapis.com/auth/documents,https://www.googleapis.com/auth/drive,https://www.googleapis.com/auth/drive.file,https://www.googleapis.com/auth/forms.body,https://www.googleapis.com/auth/gmail.modify,https://www.googleapis.com/auth/meetings.space.created,https://www.googleapis.com/auth/presentations,https://www.googleapis.com/auth/script.deployments,https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/tasks"
 ```
 
 Trình duyệt mở — xử lý theo thứ tự:

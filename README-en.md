@@ -115,7 +115,9 @@ The consent screen can only offer permissions that are registered for the projec
 
 1. Open [Google Cloud Console](https://console.cloud.google.com/) and select the **same project** as `gws`.
 2. **Google Auth Platform** (or **APIs & Services** → **OAuth consent screen**) → **Data Access** — or open [Data Access](https://console.cloud.google.com/auth/scopes) and pick the project in the top bar.
-3. **Add scope** / **Add or remove scopes** — add every scope your app will request (match the `gws auth login` string in **Step 3.4**: Calendar, Chat, Classroom, Contacts, Docs, Drive, Forms, Gmail, Meet, Slides, Apps Script, Sheets, Tasks, `openid`, `userinfo.email`, etc.). Save.
+3. **Add scope** / **Add or remove scopes** — add every scope your app will request (match the `gws auth login` string in **Step 3.4**: Calendar, Chat — `chat.messages`, `chat.spaces`, `chat.memberships`, Classroom, Contacts, Docs, Drive, Forms, Gmail, Meet, Slides, Apps Script, Sheets, Tasks, `openid`, `userinfo.email`, etc.). Save.
+
+> **Note (Chat API):** In Google Cloud Console, Chat API is described as **Workspace-only**; consumer Gmail may not be able to configure or call Chat / `gws` chat flows fully as in the labs.
 
 ### Step 3.3. Add test users (avoid HTTP 403)
 
@@ -129,7 +131,7 @@ In **Testing** mode, only Gmail addresses listed under **Test users** may comple
 ### Step 3.4. Sign in to Workspace CLI
 
 ```bash
-gws auth login --scopes "openid,https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/chat.messages,https://www.googleapis.com/auth/classroom.announcements,https://www.googleapis.com/auth/classroom.courses,https://www.googleapis.com/auth/classroom.coursework.students,https://www.googleapis.com/auth/classroom.courseworkmaterials,https://www.googleapis.com/auth/contacts,https://www.googleapis.com/auth/documents,https://www.googleapis.com/auth/drive,https://www.googleapis.com/auth/drive.file,https://www.googleapis.com/auth/forms.body,https://www.googleapis.com/auth/gmail.modify,https://www.googleapis.com/auth/meetings.space.created,https://www.googleapis.com/auth/presentations,https://www.googleapis.com/auth/script.deployments,https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/tasks"
+gws auth login --scopes "openid,https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/chat.messages,https://www.googleapis.com/auth/chat.spaces,https://www.googleapis.com/auth/chat.memberships,https://www.googleapis.com/auth/classroom.announcements,https://www.googleapis.com/auth/classroom.courses,https://www.googleapis.com/auth/classroom.coursework.students,https://www.googleapis.com/auth/classroom.courseworkmaterials,https://www.googleapis.com/auth/contacts,https://www.googleapis.com/auth/documents,https://www.googleapis.com/auth/drive,https://www.googleapis.com/auth/drive.file,https://www.googleapis.com/auth/forms.body,https://www.googleapis.com/auth/gmail.modify,https://www.googleapis.com/auth/meetings.space.created,https://www.googleapis.com/auth/presentations,https://www.googleapis.com/auth/script.deployments,https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/tasks"
 ```
 
 The browser opens — follow this order:
